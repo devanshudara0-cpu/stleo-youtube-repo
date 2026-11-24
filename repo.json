@@ -1,0 +1,8 @@
+{
+  "name": "LEOVONIX YouTube & Live Stream",
+  "description": "Official Ad-Free 4K YouTube, Studio Music & 24x7 Live Streams by Devanshu (@Dara_OG)",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/devanshudara0-cpu/stleo-youtube-repo/main/plugins.json"
+  ]
+}
