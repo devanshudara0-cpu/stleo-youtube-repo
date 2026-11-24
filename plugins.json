@@ -2,23 +2,24 @@
   {
     "url": "https://raw.githubusercontent.com/devanshudara0-cpu/stleo-youtube-repo/main/builds/Youtube.leo",
     "status": 1,
-    "version": 1,
-    "name": "LEOVONIX YouTube & Live Stream",
+    "version": 2,
+    "name": "LEOVONIX YouTube, Spotify & Music Hub",
     "internalName": "Youtube",
     "authors": [
       "Devanshu (@Dara_OG)"
     ],
-    "description": "Ad-Free 4K 60FPS YouTube, Studio Quality Music & 24x7 Live Streams",
-    "fileSize": 12967,
+    "description": "4K YouTube, YouTube Music, Spotify & Apple Music 24x7 Streaming",
+    "fileSize": 15113,
     "repositoryUrl": "https://github.com/devanshudara0-cpu/stleo-youtube-repo",
     "language": "en",
     "tvTypes": [
       "Live",
       "Music",
-      "Others"
+      "Audio",
+      "Podcast"
     ],
     "iconUrl": "https://raw.githubusercontent.com/devanshudara0-cpu/stleo-youtube-repo/main/icons/Youtube.png",
     "apiVersion": 1,
-    "fileHash": "sha256-7c58597c56c261ac8206b11b70c6d37e21454ca64427c793759ab0e1e753f2e5"
+    "fileHash": "sha256-56301974f78d197beca4456a5467904aebbddb7c8fe88c411108dc9afb576d06"
   }
 ]
