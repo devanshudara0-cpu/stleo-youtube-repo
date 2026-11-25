@@ -1,0 +1,98 @@
+name: Build Youtube Extension
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/build_plugins.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Download Kotlin compiler & LEOVONIX SDK
+        run: |
+          mkdir -p .build-tools
+          curl -fsSL -o .build-tools/kotlinc.zip https://github.com/JetBrains/kotlin/releases/download/v2.4.21/kotlin-compiler-2.4.21.zip
+          unzip -q .build-tools/kotlinc.zip -d .build-tools
+          curl -fsSL -o .build-tools/leovonix-plugin-sdk.jar https://github.com/devanshudara0-cpu/STxLEO_OTT/releases/download/v1.0/leovonix-plugin-sdk.jar
+          ls -lh .build-tools/leovonix-plugin-sdk.jar
+
+      - name: Compile and Package Youtube.leo
+        run: |
+          KOTLINC="$PWD/.build-tools/kotlinc/bin/kotlinc"
+          SDK_JAR="$PWD/.build-tools/leovonix-plugin-sdk.jar"
+          ANDROID_JAR=$(ls -d "$ANDROID_HOME"/platforms/android-*/android.jar | sort -V | tail -n 1)
+          D8_BIN=$(ls -d "$ANDROID_HOME"/build-tools/*/d8 | sort -V | tail -n 1)
+          echo "Using ANDROID_JAR=$ANDROID_JAR"
+          echo "Using D8_BIN=$D8_BIN"
+
+          mkdir -p .build-out/classes .build-out/dex builds
+          "$KOTLINC" -jvm-target 11 -cp "$SDK_JAR:$ANDROID_JAR" -d .build-out/classes src/com/leovonix/youtube/YoutubePlugin.kt
+
+          mapfile -t CLASS_FILES < <(find .build-out/classes -name '*.class')
+          "$D8_BIN" --min-api 23 --lib "$ANDROID_JAR" --classpath "$SDK_JAR" --output .build-out/dex "${CLASS_FILES[@]}"
+
+          cat > .build-out/dex/manifest.json <<'EOF'
+          {"name":"YoutubeProvider","pluginClassName":"com.leovonix.youtube.YoutubePlugin","version":5,"requiresResources":false}
+          EOF
+
+          rm -f builds/Youtube.leo
+          (cd .build-out/dex && zip -q -r "$OLDPWD/builds/Youtube.leo" manifest.json classes*.dex)
+
+          python3 - <<'PY'
+          import hashlib, json, os, zipfile
+
+          leo = "builds/Youtube.leo"
+          with zipfile.ZipFile(leo) as z:
+              for name in z.namelist():
+                  data = z.read(name).lower()
+                  for bad in (b"cloudstream", b"recloudstream", b"lagradost"):
+                      if bad in data:
+                          raise SystemExit(f"Forbidden token {bad!r} found in {name}")
+
+          size = os.path.getsize(leo)
+          sha = hashlib.sha256(open(leo, "rb").read()).hexdigest()
+          with open("plugins.json", "r", encoding="utf-8") as f:
+              plugins = json.load(f)
+          for p in plugins:
+              if p.get("internalName") == "YoutubeProvider":
+                  p["version"] = 5
+                  p["fileSize"] = size
+                  p["fileHash"] = f"sha256-{sha}"
+                  p["status"] = 1
+                  p["apiVersion"] = 1
+          with open("plugins.json", "w", encoding="utf-8") as f:
+              json.dump(plugins, f, indent=2)
+              f.write("\n")
+          print(f"Updated Youtube.leo: size={size}, sha256={sha}")
+          PY
+
+      - name: Commit & Push Built Extension
+        run: |
+          rm -rf .build-tools .build-out
+          git config user.name "leovonix-bot"
+          git config user.email "bot@leovonix.local"
+          git add builds/Youtube.leo plugins.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(build): compile clean Youtube.leo v5 from Kotlin source [skip ci]"
+            git push origin HEAD:main
+          else
+            echo "No changes to push"
+          fi
