@@ -2,14 +2,14 @@
   {
     "url": "https://raw.githubusercontent.com/devanshudara0-cpu/stleo-youtube-repo/main/builds/Youtube.leo",
     "status": 1,
-    "version": 4,
+    "version": 5,
     "name": "LEOVONIX YouTube & Live Stream",
     "internalName": "YoutubeProvider",
     "authors": [
       "Devanshu (@Dara_OG)"
     ],
     "description": "Ad-Free 4K 60FPS YouTube & 24x7 Live Streams",
-    "fileSize": 13019,
+    "fileSize": 18887,
     "repositoryUrl": "https://github.com/devanshudara0-cpu/stleo-youtube-repo",
     "language": "en",
     "tvTypes": [
@@ -20,6 +20,6 @@
     ],
     "iconUrl": "https://raw.githubusercontent.com/devanshudara0-cpu/stleo-youtube-repo/main/icons/Youtube.png",
     "apiVersion": 1,
-    "fileHash": "sha256-a246eb1584cec9e69ba8c50136b9e8dc11a2fc0ab225710c31ad66c2ec4f4efe"
+    "fileHash": "sha256-1d28dd3e86a3b68a048994ac7dccf4a9d32549f340b086ecadcd507e7b4196d0"
   }
 ]
